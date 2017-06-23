@@ -4,14 +4,11 @@
 
 > Koa v2 is now the default. For Koa v1 support install with koa-websocket@2 and see the `legacy` branch.
 
-## Installation
-
-`npm install koa-websocket`
-
 ## Usage
 
 ```js
-const Koa = require('koa'),
+const http = require('http'),
+  Koa = require('koa'),
   route = require('koa-route'),
   websockify = require('koa-websocket');
 
@@ -35,13 +32,16 @@ app.ws.use(route.all('/test/:id', function (ctx) {
   });
 }));
 
-app.listen(3000);
+const server = http.createServer(app.callback()).listen(3000);
+app.attach(server);
 ```
 
 With custom websocket options.
 
 ```js
-const Koa = require('koa'),
+const https = require('https'),
+  fs = require('fs'),
+  Koa = require('koa'),
   route = require('koa-route'),
   websockify = require('koa-websocket');
 
@@ -56,5 +56,10 @@ app.ws.use(route.all('/', function* (ctx) {
   });
 }));
 
-app.listen(3000);
+const options = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+  };
+const server = https.createServer(options, app.callback()).listen(3000);
+app.attach(server);
 ```
