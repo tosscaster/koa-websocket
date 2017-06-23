@@ -39,6 +39,26 @@ KoaWebSocketServer.prototype.use = function (fn) {
 };
 
 module.exports = function (app, wsOptions) {
+  app.attach = function (server) {
+    debug('Attaching server...');
+    const options = {
+      server
+    };
+    if (wsOptions) {
+      for (var key in wsOptions) {
+        if (wsOptions.hasOwnProperty(key)) {
+          options[key] = wsOptions[key];
+        }
+      }
+    }
+    app.ws.listen(options);
+  };
+  app.ws = new KoaWebSocketServer(app);
+  return app;
+};
+
+/*
+module.exports = function (app, wsOptions) {
   const oldListen = app.listen;
   app.listen = function () {
     debug('Attaching server...');
@@ -57,3 +77,4 @@ module.exports = function (app, wsOptions) {
   app.ws = new KoaWebSocketServer(app);
   return app;
 };
+*/
