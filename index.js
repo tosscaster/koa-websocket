@@ -7,7 +7,7 @@ const url = require('url'),
 const WebSocketServer = ws.Server;
 const debug = require('debug')('koa:websockets');
 
-function KoaWebSocketServer (app) {
+function KoaWebSocketServer(app) {
   this.app = app;
   this.middleware = [];
 }
@@ -17,18 +17,24 @@ KoaWebSocketServer.prototype.listen = function (options) {
   this.server.on('connection', this.onConnection.bind(this));
 };
 
-KoaWebSocketServer.prototype.onConnection = function(socket, req) {
+KoaWebSocketServer.prototype.onConnection = function (socket, req) {
   debug('Connection received');
+  // alive check
+  socket.isAlive = true;
+  socket.on('pong', function () {
+    socket.isAlive = true;
+    console.log('ws receive pong from client ------');
+  });
   socket.on('error', function (err) {
     debug('Error occurred:', err);
   });
   const fn = co.wrap(compose(this.middleware));
-  
+
   const context = this.app.createContext(req);
   context.websocket = socket;
   context.path = url.parse(req.url).pathname;
 
-  fn(context).catch(function(err) {
+  fn(context).catch(function (err) {
     debug(err);
   });
 };
@@ -37,6 +43,8 @@ KoaWebSocketServer.prototype.use = function (fn) {
   this.middleware.push(fn);
   return this;
 };
+
+function noop() { }
 
 module.exports = function (app, wsOptions) {
   app.attach = function (server) {
@@ -52,6 +60,18 @@ module.exports = function (app, wsOptions) {
       }
     }
     app.ws.listen(options);
+    // send heart beat
+    setInterval(() => { // ping
+      app.ws.server.clients.forEach((ws) => {
+        if (ws.isAlive === false) {
+          console.log('ws client close ------');
+          return ws.terminate();
+        }
+        ws.isAlive = false;
+        ws.ping(noop);
+        console.log('send ws ping ------');
+      });
+    }, 30000);
   };
   app.ws = new KoaWebSocketServer(app);
   return app;
