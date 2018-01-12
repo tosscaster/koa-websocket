@@ -23,7 +23,7 @@ KoaWebSocketServer.prototype.onConnection = function (socket, req) {
   socket.isAlive = true;
   socket.on('pong', function () {
     socket.isAlive = true;
-    console.log('ws receive pong from client ------');
+    debug('ws receive pong from client');
   });
   socket.on('error', function (err) {
     debug('Error occurred:', err);
@@ -64,12 +64,12 @@ module.exports = function (app, wsOptions) {
     setInterval(() => { // ping
       app.ws.server.clients.forEach((ws) => {
         if (ws.isAlive === false) {
-          console.log('ws client close ------');
+          debug('ws terminate client');
           return ws.terminate();
         }
         ws.isAlive = false;
         ws.ping(noop);
-        console.log('send ws ping ------');
+        debug('send ws ping');
       });
     }, 30000);
   };
