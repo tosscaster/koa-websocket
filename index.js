@@ -71,7 +71,7 @@ module.exports = function (app, wsOptions) {
         ws.ping(noop);
         debug('send ws ping');
       });
-    }, 30000);
+    }, 3000);
   };
   app.ws = new KoaWebSocketServer(app);
   return app;
