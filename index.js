@@ -78,11 +78,16 @@ module.exports = function (app, wsOptions) {
 };
 
 /*
-module.exports = function (app, wsOptions) {
+module.exports = function (app, wsOptions, httpsOptions) {
   const oldListen = app.listen;
   app.listen = function () {
     debug('Attaching server...');
-    app.server = oldListen.apply(app, arguments);
+    if (typeof httpsOptions === 'object') {
+      const httpsServer = https.createServer(httpsOptions, app.callback());
+      app.server = httpsServer.listen.apply(httpsServer, arguments);
+    } else {
+      app.server = oldListen.apply(app, arguments);
+    }
     const options = { server: app.server};
     if (wsOptions) {
       for (var key in wsOptions) {
