@@ -63,13 +63,15 @@ module.exports = function (app, wsOptions) {
     // send heart beat
     setInterval(() => { // ping
       app.ws.server.clients.forEach((ws) => {
-        if (ws.isAlive === false) {
-          debug('ws terminate client');
-          return ws.terminate();
-        }
-        ws.isAlive = false;
-        ws.ping(noop);
-        debug('send ws ping');
+        try {
+          if (ws.isAlive === false) {
+            debug('ws terminate client');
+            return ws.terminate();
+          }
+          ws.isAlive = false;
+          ws.ping(noop);
+          debug('send ws ping');
+        } catch (e) {}
       });
     }, 3000);
   };
