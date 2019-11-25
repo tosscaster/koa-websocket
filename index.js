@@ -8,7 +8,7 @@ const WebSocketServer = ws.Server;
 const debug = require("debug")("koa:websockets");
 
 const ALIVE_CHECK_TIME = 5000; // 5 seconds
-const MAX_ALIVE_COUNT = 5;
+const MAX_ALIVE_COUNT = 9;
 
 function KoaWebSocketServer(app) {
   this.app = app;
